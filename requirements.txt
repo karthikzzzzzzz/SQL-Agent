@@ -1,0 +1,6 @@
+fastapi
+mcp
+python-dotenv
+uvicorn
+openai
+sqlite3
