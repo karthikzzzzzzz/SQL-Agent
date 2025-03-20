@@ -18,7 +18,6 @@ body {
     height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
-    text-align: center;
 }
 h2 {
   margin: 0;
@@ -156,7 +155,7 @@ h2 {
 .chat-body .message {
     display: flex;
     gap: 11px;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
 }
 
