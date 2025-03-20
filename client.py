@@ -2,8 +2,17 @@ from fastapi import HTTPException,FastAPI
 from starlette import status
 from schema import Request
 from services import chat
+from fastapi.middleware.cors import CORSMiddleware
 
 app= FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/chat")
 async def chat_with_ai(request: Request):
