@@ -21,6 +21,7 @@ def query_data(sql: str) -> str:
         return f"Error: {str(e)}"
     finally:
         conn.close()
+        
 
 # @mcp.tool()
 #def connect_to_mysql(host=os.environ.get('MYSQL_HOST'), user=os.environ.get('MYSQL_USER'), password=os.environ.get('MYSQL_PASSWORD'), database=os.environ.get('MYSQL_DB'),sql:str):
@@ -52,9 +53,6 @@ def query_data(sql: str) -> str:
 #             connection.close()  
         
 
-@mcp.prompt()
-def example_prompt(code:str)->str:
-    return f"Please review this code:\n\n{code}"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
