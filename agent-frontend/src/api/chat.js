@@ -12,7 +12,7 @@ const getResponse = async (userMessage)=>{
           throw new Error('Failed to fetch bot response');
         }
         const data = await response.json();
-        const botMessage = data.response;
+        const botMessage = data.query;
         return botMessage;
         
       } catch (error) {

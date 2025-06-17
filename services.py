@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from email.mime import base
 from typing import cast
 import openai
 from openai.types import ChatModel
@@ -12,7 +13,7 @@ import os
 app= FastAPI()
 load_dotenv()
 
-openai_client = openai.AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+openai_client = openai.AsyncOpenAI(api_key="ollama",base_url="http://localhost:11434/v1")
 server_params = StdioServerParameters(
     command="python", 
     args=["./server.py"],  
@@ -38,43 +39,32 @@ class Chat:
             }
             for tool in response.tools
         ]
-        
+
         res = await openai_client.chat.completions.create(
-            model=os.environ.get("MODEL"),
+            model="llama3.2",
             messages=self.messages + [{"role": "user", "content": query}],
             tools=available_tools,
         )
+    
         
-        assistant_message_content = []
-
+        sql_query = None
         for choice in res.choices:
             if hasattr(choice.message, "tool_calls") and choice.message.tool_calls:
                 for tool_call in choice.message.tool_calls:
                     tool_name = tool_call.function.name
                     tool_args = json.loads(tool_call.function.arguments)
+                    sql_query = tool_args.get("sql","")
                     result = await session.call_tool(tool_name, cast(dict, tool_args))
                     tool_result = result.content[0].text if result.content else "No response from tool."
 
-                    assistant_message_content.append(
-                        {
-                            "tool_name": tool_name,
-                            "args": tool_args,
-                            "result": tool_result 
-                        }
-                    )
-
-                    self.messages.append({"role": "assistant", "content": json.dumps(assistant_message_content)})
-                    self.messages.append({"role": "user", "content": tool_result})  
-
-                    res = await openai_client.chat.completions.create(
-                        model=os.environ.get("MODEL"),
-                        messages=self.messages,
-                    )
-                    self.messages.append({"role": "assistant", "content": res.choices[0].message.content})
-
+                    self.messages.append({"role": "assistant", "content": json.dumps({
+                    "tool_name": tool_name,
+                    "args": tool_args,
+                    "result": tool_result
+                })})
+                    self.messages.append({"role": "user", "content": tool_result})
         return {
-            "response": res.choices[0].message.content,
-            "context": self.messages  
+            "query":sql_query,
         }
 
 
